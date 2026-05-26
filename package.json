@@ -32,7 +32,7 @@
     "dev": "tsup --watch",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "npm run typecheck && node --import tsx --test test/**/*.test.ts",
+    "test": "npm run typecheck && node --import tsx --test test/*.test.ts",
     "bridge": "node ./bin/lark-opencode-bridge.mjs",
     "setup": "node ./bin/lark-opencode-bridge.mjs setup",
     "start": "node ./bin/lark-opencode-bridge.mjs run",

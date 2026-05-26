@@ -6,7 +6,7 @@ import {
   isUserAllowed,
   parseIdList,
 } from "../src/config-access.js";
-import { baseConfig } from "./helpers.js";
+import { baseConfig } from "./lib/helpers.js";
 
 describe("config-access", () => {
   it("parseIdList splits comma-separated ids", () => {

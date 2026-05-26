@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { applyConfigForm } from "../src/config-form.js";
-import { baseConfig } from "./helpers.js";
+import { baseConfig } from "./lib/helpers.js";
 
 describe("applyConfigForm", () => {
   it("applies valid preferences", () => {
