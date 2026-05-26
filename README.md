@@ -3,9 +3,7 @@
 [![CI](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml)
 
 A lightweight bridge that connects **Feishu/Lark** messaging with the
-**opencode** AI coding agent. Inspired by
-[`feishu-claude-code-bridge`](https://github.com/zarazhangrui/feishu-claude-code-bridge),
-but driven by the official [`larksuite/cli`](https://github.com/larksuite/cli)
+**opencode** AI coding agent, driven by the official [`larksuite/cli`](https://github.com/larksuite/cli)
 on the messaging side and [`opencode`](https://opencode.ai) on the AI side.
 
 ```
@@ -90,7 +88,7 @@ go through `lark-cli` (`im +messages-send/reply`, `api PATCH` for cards,
 - [`opencode`](https://opencode.ai) on `$PATH` (install only — no separate login step)
 - A Feishu/Lark app (the **first `run` auto-launches a QR setup wizard** if none is configured)
 
-### Quick start (same flow as [lark-channel-bridge](https://github.com/zarazhangrui/feishu-claude-code-bridge))
+### Quick start
 
 ```bash
 npm i -g lark-opencode-bridge   # after publish; or `npm link` from a dev checkout
@@ -333,17 +331,6 @@ lark-opencode-bridge status
 ```
 
 In-chat preferences: send `/config` for an interactive settings card (reply style, access control, group @ policy, etc.).
-
-## Development
-
-```bash
-npm install
-npm test          # typecheck + unit tests
-npm run build
-npm link          # optional global CLI for local dev
-```
-
-CI runs on GitHub Actions (`typecheck`, `test`, `build`) for Node 20 and 22.
 
 ## Known limitations
 

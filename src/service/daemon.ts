@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { readdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -9,6 +10,72 @@ import { HOME_DIR } from "../paths.js";
 const log = createLogger("service");
 
 const LABEL = "com.lark-opencode-bridge";
+
+export interface ServiceBinaries {
+  larkCli?: string;
+  opencode?: string;
+}
+
+/** Resolve absolute paths while installing the daemon (launchd has a minimal PATH). */
+export function resolveServiceBinaries(): ServiceBinaries {
+  return {
+    larkCli: resolveOnPath("lark-cli"),
+    opencode: resolveOnPath("opencode"),
+  };
+}
+
+function resolveOnPath(name: string): string | undefined {
+  const res = spawnSync("which", [name], { encoding: "utf8", env: process.env });
+  if (res.status !== 0) return undefined;
+  const p = res.stdout.trim();
+  return p || undefined;
+}
+
+/**
+ * PATH for launchd/systemd — include common npm / Homebrew locations that are
+ * often missing when the daemon starts outside the user's shell profile.
+ */
+function servicePathEnv(): string {
+  const home = os.homedir();
+  const parts = new Set<string>();
+  const add = (p?: string) => {
+    if (p) parts.add(p);
+  };
+
+  add(process.env.PATH);
+  add("/opt/homebrew/bin");
+  add("/usr/local/bin");
+  add("/usr/bin");
+  add("/bin");
+
+  const npmPrefix = spawnSync("npm", ["prefix", "-g"], { encoding: "utf8" });
+  if (npmPrefix.status === 0) {
+    add(path.join(npmPrefix.stdout.trim(), "bin"));
+  }
+
+  add(path.join(home, ".npm-global", "bin"));
+  add(path.join(home, ".local", "bin"));
+
+  const nvmCurrent = path.join(home, ".nvm", "versions", "node");
+  try {
+    for (const v of readdirSync(nvmCurrent)) {
+      add(path.join(nvmCurrent, v, "bin"));
+    }
+  } catch {
+    // nvm not installed
+  }
+
+  return [...parts].filter(Boolean).join(":");
+}
+
+function runProgramArgs(binaries: ServiceBinaries): string[] {
+  const bin = bridgeBin();
+  const node = nodeBin();
+  const args = [node, bin, "run"];
+  if (binaries.larkCli) args.push("--lark-cli", binaries.larkCli);
+  if (binaries.opencode) args.push("--opencode", binaries.opencode);
+  return args;
+}
 
 export interface ServiceStatus {
   installed: boolean;
@@ -27,10 +94,10 @@ function nodeBin(): string {
   return process.execPath;
 }
 
-function launchAgentPlist(): string {
-  const bin = bridgeBin();
-  const node = nodeBin();
+function launchAgentPlist(binaries: ServiceBinaries): string {
   const home = HOME_DIR;
+  const programArgs = runProgramArgs(binaries);
+  const argXml = programArgs.map((a) => `    <string>${escapeXml(a)}</string>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -39,9 +106,7 @@ function launchAgentPlist(): string {
   <string>${LABEL}</string>
   <key>ProgramArguments</key>
   <array>
-    <string>${node}</string>
-    <string>${bin}</string>
-    <string>run</string>
+${argXml}
   </array>
   <key>RunAtLoad</key>
   <true/>
@@ -54,30 +119,43 @@ function launchAgentPlist(): string {
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
-    <string>${process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin"}</string>
+    <string>${escapeXml(servicePathEnv())}</string>
   </dict>
 </dict>
 </plist>
 `;
 }
 
-function systemdUnit(): string {
-  const bin = bridgeBin();
-  const node = nodeBin();
+function systemdUnit(binaries: ServiceBinaries): string {
+  const programArgs = runProgramArgs(binaries);
+  const execStart = programArgs.map(shellQuote).join(" ");
   return `[Unit]
 Description=Lark OpenCode Bridge
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=${node} ${bin} run
+ExecStart=${execStart}
 Restart=always
 RestartSec=5
-Environment=PATH=${process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin"}
+Environment=PATH=${servicePathEnv()}
 
 [Install]
 WantedBy=default.target
 `;
+}
+
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function shellQuote(s: string): string {
+  if (/^[A-Za-z0-9_./:-]+$/.test(s)) return s;
+  return `'${s.replace(/'/g, `'\\''`)}'`;
 }
 
 function launchAgentPath(): string {
@@ -106,6 +184,8 @@ export async function ensureServiceInstalled(): Promise<void> {
 export async function ensureServiceStarted(): Promise<void> {
   assertServicePlatform();
   await ensureServiceInstalled();
+  // Refresh unit/plist so absolute binary paths stay current after upgrades.
+  await installService();
   const st = await getServiceStatus();
   if (!st.running) await startService();
 }
@@ -122,10 +202,18 @@ export async function restartService(): Promise<void> {
 
 export async function installService(): Promise<void> {
   assertServicePlatform();
+  const binaries = resolveServiceBinaries();
+  if (!binaries.larkCli) {
+    log.warn("lark-cli not found on PATH — daemon may fail preflight until @larksuite/cli is installed");
+  }
+  if (!binaries.opencode) {
+    log.warn("opencode not found on PATH — daemon may fail preflight until opencode is installed");
+  }
+
   if (process.platform === "darwin") {
     const plistPath = launchAgentPath();
     await fs.mkdir(path.dirname(plistPath), { recursive: true });
-    await fs.writeFile(plistPath, launchAgentPlist(), "utf8");
+    await fs.writeFile(plistPath, launchAgentPlist(binaries), "utf8");
     run("launchctl", ["load", "-w", plistPath]);
     log.info(`installed launchd agent: ${plistPath}`);
     return;
@@ -133,7 +221,7 @@ export async function installService(): Promise<void> {
   if (process.platform === "linux") {
     const unitPath = systemdUnitPath();
     await fs.mkdir(path.dirname(unitPath), { recursive: true });
-    await fs.writeFile(unitPath, systemdUnit(), "utf8");
+    await fs.writeFile(unitPath, systemdUnit(binaries), "utf8");
     run("systemctl", ["--user", "daemon-reload"]);
     run("systemctl", ["--user", "enable", "--now", `${LABEL}.service`]);
     log.info(`installed systemd user service: ${unitPath}`);

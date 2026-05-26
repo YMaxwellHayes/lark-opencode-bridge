@@ -172,6 +172,12 @@ export async function runCli(argv: string[]): Promise<void> {
       const cfg = await mergedConfig(opts);
 
       if (!(await hasLarkAppConfigured(cfg.larkProfile))) {
+        if (!process.stdin.isTTY) {
+          log.error(
+            "飞书应用未配置，后台服务无法扫码绑定 — 请先在前台运行: lark-opencode-bridge run",
+          );
+          process.exit(1);
+        }
         process.stdout.write("\n未检测到飞书应用配置，进入扫码向导…\n\n");
         await runSetupWizard({
           profileName: cfg.larkProfile ?? "lark-opencode-bridge",
@@ -209,10 +215,29 @@ export async function runCli(argv: string[]): Promise<void> {
     .command("start")
     .description("Install (if needed) and start background daemon (macOS launchd / Linux systemd)")
     .action(async () => {
+      if (!(await hasLarkAppConfigured())) {
+        process.stdout.write(
+          "⚠ 尚未完成飞书应用绑定。请先在前台运行并完成扫码:\n\n  lark-opencode-bridge run\n\n",
+        );
+        process.exit(1);
+      }
       await ensureServiceStarted();
       const st = await getServiceStatus();
       process.stdout.write(`后台服务已启动。\n${st.detail}\n`);
-      process.stdout.write(`日志: ${LOG_DIR}/service.*.log\n`);
+      process.stdout.write(`日志: ${LOG_DIR}/\n`);
+      process.stdout.write(`  - ${LOG_DIR}/service.stderr.log（启动错误）\n`);
+      process.stdout.write(`  - ${LOG_DIR}/${new Date().toISOString().slice(0, 10)}.log（运行日志）\n`);
+
+      await sleep(2500);
+      const procs = await listProcesses();
+      const alive = procs.some((p) => p.label === "run" && isAlive(p.pid));
+      if (!alive) {
+        process.stdout.write(
+          "\n⚠ bridge 进程未注册（可能 preflight 失败）。请运行:\n\n  lark-opencode-bridge doctor\n  tail -20 ~/.lark-opencode-bridge/logs/service.stderr.log\n\n",
+        );
+      } else {
+        process.stdout.write("\n✓ bridge 进程已就绪。私聊直接发消息；群里请 @ 机器人。\n");
+      }
       process.stdout.write(
         "\n提示: 后台命令需全局安装 (npm i -g lark-opencode-bridge)，勿用 npx。\n",
       );
@@ -459,4 +484,8 @@ function printDoctor(r: DoctorReport): void {
   w(`require @ in group: ${r.cfg.requireGroupMention}`);
 }
 
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

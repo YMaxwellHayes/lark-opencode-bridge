@@ -1,7 +1,7 @@
 {
   "name": "lark-opencode-bridge",
-  "version": "0.1.1",
-  "description": "Bridge Feishu/Lark messenger with the opencode CLI (inspired by lark-channel-bridge)",
+  "version": "0.1.2",
+  "description": "Bridge Feishu/Lark messenger with the opencode CLI",
   "type": "module",
   "repository": {
     "type": "git",

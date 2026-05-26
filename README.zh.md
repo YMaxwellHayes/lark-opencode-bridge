@@ -90,28 +90,6 @@ lark-opencode-bridge service install|start|stop|uninstall  （与 start/stop 等
 
 `~/.lark-cli/config.json` 由 lark-cli / 扫码向导维护（app id、profile 等）。
 
-## 与 lark-channel-bridge 的差异
-
-| | lark-channel-bridge | lark-opencode-bridge |
-|---|---|---|
-| AI 后端 | Claude Code CLI | opencode HTTP API |
-| 配置目录 | `~/.lark-channel/` | `~/.lark-opencode-bridge/` |
-| 首次启动 | `run` 自动扫码 | **同样：`run` 自动扫码** |
-| 权限导入 | 向导内引导 | setup + `scopes` / `scopes-guide` |
-| npm 包名 | `lark-channel-bridge` | `lark-opencode-bridge`（待发布） |
-
-两边都无法通过 API 完全自动「开通敏感权限 + 发布应用」，仍需在开放平台后台点几下。
-
-## 开发
-
-```bash
-npm install
-npm test          # typecheck + 单元测试
-npm run build
-```
-
-CI：GitHub Actions（Node 20 / 22，typecheck + test + build）。
-
 ## 许可
 
 [MIT](./LICENSE)
