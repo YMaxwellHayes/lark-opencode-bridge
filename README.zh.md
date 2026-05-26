@@ -2,7 +2,12 @@
 
 [![CI](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml)
 
-把飞书 / Lark 消息和本地 **opencode** CLI 打通的轻量 bot：一条命令起服务，扫码绑应用，在飞书里和 AI 对话、让它读图 / 改代码。
+**在飞书里远程指挥本机 opencode** — 一条命令安装，扫码绑应用；私聊或 @ 机器人即可改代码。支持流式卡片、图片附件、云文档评论、一键 `/spawn` 工作群，算力在本地、对话在手机上。
+
+```bash
+npm i -g lark-opencode-bridge@latest
+lark-opencode-bridge run
+```
 
 [English README](./README.md)
 

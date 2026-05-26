@@ -484,7 +484,7 @@ function printDoctor(r: DoctorReport): void {
   w(`require @ in group: ${r.cfg.requireGroupMention}`);
 }
 
-const VERSION = "0.1.4";
+const VERSION = "0.1.5";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

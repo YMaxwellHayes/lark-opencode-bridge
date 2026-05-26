@@ -1,7 +1,7 @@
 {
   "name": "lark-opencode-bridge",
-  "version": "0.1.4",
-  "description": "Bridge Feishu/Lark messenger with the opencode CLI",
+  "version": "0.1.5",
+  "description": "Feishu/Lark bot for local opencode — QR setup, streaming cards, /spawn groups, doc comments & attachments",
   "type": "module",
   "repository": {
     "type": "git",

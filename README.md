@@ -3,7 +3,16 @@
 [![CI](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml)
 
 A lightweight bridge that connects **Feishu/Lark** messaging with the
-**opencode** AI coding agent, driven by the official [`larksuite/cli`](https://github.com/larksuite/cli)
+**opencode** AI coding agent — install, scan QR, chat from your phone while
+opencode runs locally. Streaming cards, attachments, doc-comment @mentions,
+and `/spawn` workspace groups included.
+
+```bash
+npm i -g lark-opencode-bridge@latest
+lark-opencode-bridge run
+```
+
+Driven by the official [`larksuite/cli`](https://github.com/larksuite/cli)
 on the messaging side and [`opencode`](https://opencode.ai) on the AI side.
 
 ```
