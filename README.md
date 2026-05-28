@@ -15,6 +15,8 @@ lark-opencode-bridge run
 Driven by the official [`larksuite/cli`](https://github.com/larksuite/cli)
 on the messaging side and [`opencode`](https://opencode.ai) on the AI side.
 
+> 👋 **New here?** Read the [中文场景与定位指南 / Scenarios & positioning guide](./docs/SCENARIOS.zh.md) first — what it is, who it is and isn't for, the `/spawn` flagship, and typical workflows. The rest of this README is the technical reference.
+
 ```
                     ┌──────────────────────────────┐
   Feishu user msg → │ lark-cli event consume       │  (NDJSON stdout stream)

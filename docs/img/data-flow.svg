@@ -1,0 +1,97 @@
+<svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a6cf7"/>
+    </marker>
+    <marker id="arrowBack" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#22a06b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="360" fill="#f7faff"/>
+
+  <!-- Title -->
+  <text x="450" y="28" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="16" font-weight="700" fill="#1f2a44">数据流架构图：飞书 ↔ 本机 opencode</text>
+
+  <!-- Box 1: User / Feishu App -->
+  <g>
+    <rect x="30" y="140" width="170" height="100" rx="12" ry="12" fill="#e8f0ff" stroke="#4a6cf7" stroke-width="2"/>
+    <text x="115" y="172" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#1f2a44">用户 · 飞书 App</text>
+    <!-- mobile icon -->
+    <rect x="70" y="186" width="22" height="36" rx="3" ry="3" fill="#ffffff" stroke="#4a6cf7" stroke-width="1.5"/>
+    <circle cx="81" cy="216" r="1.6" fill="#4a6cf7"/>
+    <!-- desktop icon -->
+    <rect x="108" y="188" width="46" height="28" rx="2" ry="2" fill="#ffffff" stroke="#4a6cf7" stroke-width="1.5"/>
+    <rect x="122" y="218" width="18" height="3" fill="#4a6cf7"/>
+    <rect x="118" y="221" width="26" height="3" rx="1" ry="1" fill="#4a6cf7"/>
+    <text x="115" y="252" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#5b6478">手机 + 电脑</text>
+  </g>
+
+  <!-- Box 2: Bridge -->
+  <g>
+    <rect x="260" y="140" width="180" height="100" rx="12" ry="12" fill="#e6f7ee" stroke="#22a06b" stroke-width="2"/>
+    <text x="350" y="170" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#1f2a44">lark-opencode-bridge</text>
+    <text x="350" y="194" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="12" fill="#22a06b">本机进程</text>
+    <text x="350" y="216" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#5b6478">中转 / 转发</text>
+    <text x="350" y="232" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#5b6478">消息 ↔ 卡片</text>
+  </g>
+
+  <!-- Box 3: opencode -->
+  <g>
+    <rect x="500" y="140" width="180" height="100" rx="12" ry="12" fill="#eef0ff" stroke="#6b6ff0" stroke-width="2"/>
+    <text x="590" y="170" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#1f2a44">本机 opencode</text>
+    <text x="590" y="194" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="12" fill="#6b6ff0">AI Agent</text>
+    <text x="590" y="216" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#5b6478">在指定项目目录工作</text>
+    <text x="590" y="232" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#5b6478">读代码 · 改文件 · 跑命令</text>
+  </g>
+
+  <!-- Box 4: Streaming card -->
+  <g>
+    <rect x="740" y="140" width="140" height="100" rx="12" ry="12" fill="#fff7e6" stroke="#f0a020" stroke-width="2"/>
+    <text x="810" y="172" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="14" font-weight="700" fill="#1f2a44">流式飞书卡片</text>
+    <!-- card icon -->
+    <rect x="765" y="186" width="90" height="42" rx="4" ry="4" fill="#ffffff" stroke="#f0a020" stroke-width="1.5"/>
+    <rect x="772" y="192" width="58" height="4" rx="1" ry="1" fill="#f0a020"/>
+    <rect x="772" y="201" width="76" height="3" rx="1" ry="1" fill="#d9b67a"/>
+    <rect x="772" y="208" width="60" height="3" rx="1" ry="1" fill="#d9b67a"/>
+    <rect x="772" y="215" width="40" height="3" rx="1" ry="1" fill="#d9b67a"/>
+    <text x="810" y="246" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#5b6478">实时刷新</text>
+  </g>
+
+  <!-- Arrows: User -> Bridge (top, blue) -->
+  <line x1="200" y1="170" x2="258" y2="170" stroke="#4a6cf7" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="229" y="160" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" font-weight="600" fill="#4a6cf7">WS</text>
+
+  <!-- Arrows: Bridge -> User (bottom, green back) -->
+  <line x1="258" y1="210" x2="200" y2="210" stroke="#22a06b" stroke-width="2" marker-end="url(#arrowBack)"/>
+  <text x="229" y="226" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" font-weight="600" fill="#22a06b">卡片 patch</text>
+
+  <!-- Arrows: Bridge -> opencode (top, blue) -->
+  <line x1="440" y1="170" x2="498" y2="170" stroke="#4a6cf7" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="469" y="160" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" font-weight="600" fill="#4a6cf7">HTTP+SSE</text>
+
+  <!-- Arrows: opencode -> Bridge (bottom, green) -->
+  <line x1="498" y1="210" x2="440" y2="210" stroke="#22a06b" stroke-width="2" marker-end="url(#arrowBack)"/>
+  <text x="469" y="226" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" font-weight="600" fill="#22a06b">SSE 流式事件</text>
+
+  <!-- Dashed arrow opencode -> card (showing result reaches the user-facing card) -->
+  <path d="M 680 190 Q 710 190 740 190" fill="none" stroke="#f0a020" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+
+  <!-- Dashed arrow from card back to user (loop closure) -->
+  <path d="M 810 140 Q 810 80 460 80 Q 115 80 115 140" fill="none" stroke="#f0a020" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+  <text x="460" y="72" text-anchor="middle" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" font-weight="600" fill="#a06b10">同一张卡片实时刷新，回到用户手机/电脑</text>
+
+  <!-- Legend / notes -->
+  <g>
+    <rect x="30" y="290" width="14" height="14" fill="#4a6cf7"/>
+    <text x="50" y="302" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#1f2a44">下行：用户指令</text>
+
+    <rect x="170" y="290" width="14" height="14" fill="#22a06b"/>
+    <text x="190" y="302" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#1f2a44">上行：执行进度</text>
+
+    <rect x="320" y="290" width="14" height="14" fill="#f0a020"/>
+    <text x="340" y="302" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#1f2a44">实时卡片刷新</text>
+
+    <text x="30" y="332" font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" font-size="11" fill="#5b6478">云端不跑模型 · 不托管代码 · 不必再注册账号；代码与执行始终在你本机。</text>
+  </g>
+</svg>

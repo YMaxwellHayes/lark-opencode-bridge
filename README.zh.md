@@ -9,7 +9,7 @@ npm i -g lark-opencode-bridge@latest
 lark-opencode-bridge run
 ```
 
-[English README](./README.md)
+[English README](./README.md) · 👋 **新手必读：[场景与定位指南](./docs/SCENARIOS.zh.md)** —— 这是什么、和谁不一样、为什么需要它、典型场景
 
 ## 从零开始（推荐操作顺序）
 

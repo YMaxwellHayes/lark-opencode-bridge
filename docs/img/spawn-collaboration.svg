@@ -1,0 +1,83 @@
+<svg viewBox="0 0 960 500" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="960" height="500" fill="#fafafa"/>
+  <text x="480" y="36" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="bold" text-anchor="middle" fill="#1f2937">协作模型升级：P2P → P2A2P</text>
+
+  <!-- LEFT panel: 传统 P2P -->
+  <rect x="30" y="60" width="430" height="410" rx="14" ry="14" fill="#fff5f5" stroke="#f87171" stroke-width="2"/>
+  <text x="245" y="92" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#b91c1c">传统 P2P 协作（信息靠人脑转述）</text>
+
+  <!-- 产品 -->
+  <circle cx="105" cy="240" r="32" fill="#fde2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="105" y="248" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif" font-size="30" text-anchor="middle">🧑‍💼</text>
+  <text x="105" y="298" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1f2937">产品</text>
+  <!-- 气泡：两眼一黑 -->
+  <ellipse cx="105" cy="170" rx="48" ry="22" fill="#ffffff" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="105" y="176" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" fill="#b91c1c">两眼一黑 ⚠️</text>
+  <polygon points="95,189 115,189 105,200" fill="#ffffff" stroke="#dc2626" stroke-width="1.5"/>
+
+  <!-- 弯弯曲曲箭头 产品 → 研发 -->
+  <path d="M 145 240 Q 195 180 245 240 Q 295 300 345 240" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrowRed)"/>
+  <text x="245" y="200" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" fill="#374151">PRD / 口述</text>
+
+  <!-- 信息衰减红色标注 -->
+  <rect x="190" y="310" width="110" height="28" rx="6" ry="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="245" y="329" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#b91c1c">信息衰减</text>
+
+  <!-- 研发 -->
+  <circle cx="385" cy="240" r="32" fill="#fde2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="385" y="248" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif" font-size="30" text-anchor="middle">🧑‍💻</text>
+  <text x="385" y="298" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1f2937">研发</text>
+  <!-- 气泡：两眼一黑 -->
+  <ellipse cx="385" cy="170" rx="48" ry="22" fill="#ffffff" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="385" y="176" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" fill="#b91c1c">两眼一黑 ⚠️</text>
+  <polygon points="375,189 395,189 385,200" fill="#ffffff" stroke="#dc2626" stroke-width="1.5"/>
+
+  <!-- 底部说明 -->
+  <text x="245" y="410" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" fill="#6b7280">上下文靠人脑搬运，重讲、漏讲、误读</text>
+  <text x="245" y="432" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" fill="#6b7280">新人加入要从头啃 PRD</text>
+
+  <!-- RIGHT panel: /spawn P2A2P -->
+  <rect x="500" y="60" width="430" height="410" rx="14" ry="14" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+  <text x="715" y="92" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#15803d">/spawn P2A2P 协作（agent 居中）</text>
+
+  <!-- 飞书群边框：圆角矩形包住三角 -->
+  <rect x="540" y="120" width="350" height="290" rx="18" ry="18" fill="#ffffff" stroke="#3370ff" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="715" y="142" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#3370ff">飞书群（/spawn 工作群）</text>
+
+  <!-- agent 在中间最大 -->
+  <circle cx="715" cy="270" r="48" fill="#dcfce7" stroke="#15803d" stroke-width="2.5"/>
+  <text x="715" y="282" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif" font-size="44" text-anchor="middle">🤖</text>
+  <text x="715" y="336" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#15803d">agent</text>
+  <!-- agent 旁边的小标签 -->
+  <rect x="635" y="350" width="160" height="26" rx="6" ry="6" fill="#bbf7d0" stroke="#15803d" stroke-width="1"/>
+  <text x="715" y="368" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle" fill="#14532d">opencode（共享上下文）</text>
+
+  <!-- 产品 (左下) -->
+  <circle cx="595" cy="220" r="28" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="595" y="228" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif" font-size="26" text-anchor="middle">🧑‍💼</text>
+  <text x="595" y="272" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1f2937">产品</text>
+
+  <!-- 研发 (右下) -->
+  <circle cx="835" cy="220" r="28" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="835" y="228" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif" font-size="26" text-anchor="middle">🧑‍💻</text>
+  <text x="835" y="272" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1f2937">研发</text>
+
+  <!-- 箭头：产品 → agent -->
+  <line x1="624" y1="232" x2="668" y2="255" stroke="#15803d" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <!-- 箭头：研发 → agent -->
+  <line x1="806" y1="232" x2="762" y2="255" stroke="#15803d" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- 底部说明 -->
+  <text x="715" y="430" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" fill="#15803d">agent 居中，双方共享同一份上下文</text>
+  <text x="715" y="452" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" fill="#15803d">群里发消息即用，无需 @</text>
+
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d"/>
+    </marker>
+  </defs>
+</svg>
