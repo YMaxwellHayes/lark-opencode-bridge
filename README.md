@@ -1,6 +1,6 @@
 # lark-opencode-bridge
 
-[![CI](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml)
+[![CI](https://github.com/YMaxwellHayes/lark-opencode-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/YMaxwellHayes/lark-opencode-bridge/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/lark-opencode-bridge.svg)](https://www.npmjs.com/package/lark-opencode-bridge)
 
 > 🌉 **TL;DR:** Drive the [opencode](https://opencode.ai) AI coding agent already running on your laptop from inside Feishu / Lark — over your phone, with collaborators, persistent group sessions, and native doc-comment + attachment integration.
@@ -12,7 +12,7 @@ npm i -g lark-opencode-bridge@latest
 lark-opencode-bridge run
 ```
 
-[中文](./README.zh.md) · [GitHub](https://github.com/rorschachachxd/lark-opencode-bridge) · [npm](https://www.npmjs.com/package/lark-opencode-bridge)
+[中文](./README.zh.md) · [GitHub](https://github.com/YMaxwellHayes/lark-opencode-bridge) · [npm](https://www.npmjs.com/package/lark-opencode-bridge)
 
 ---
 

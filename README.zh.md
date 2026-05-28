@@ -1,6 +1,6 @@
 # lark-opencode-bridge
 
-[![CI](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/rorschachachxd/lark-opencode-bridge/actions/workflows/ci.yml)
+[![CI](https://github.com/YMaxwellHayes/lark-opencode-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/YMaxwellHayes/lark-opencode-bridge/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/lark-opencode-bridge.svg)](https://www.npmjs.com/package/lark-opencode-bridge)
 
 > 🌉 **一句话：** 把你本地已经在用的 [opencode](https://opencode.ai) 编程 agent 接进飞书。手机也能驱动、能拉群协作、会话能留存、飞书文档与附件原生打通。
@@ -12,7 +12,7 @@ npm i -g lark-opencode-bridge@latest
 lark-opencode-bridge run
 ```
 
-[English](./README.md) · [GitHub](https://github.com/rorschachachxd/lark-opencode-bridge) · [npm](https://www.npmjs.com/package/lark-opencode-bridge)
+[English](./README.md) · [GitHub](https://github.com/YMaxwellHayes/lark-opencode-bridge) · [npm](https://www.npmjs.com/package/lark-opencode-bridge)
 
 ---
 
