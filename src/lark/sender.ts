@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { createLogger } from "../log.js";
+import { isThreadUnsupportedError } from "./thread-reply.js";
 
 const log = createLogger("lark.send");
 
@@ -31,7 +32,7 @@ export interface PatchCardOptions {
 export class LarkSender {
   constructor(private readonly opts: SenderOptions) {}
 
-  reply(o: ReplyOptions): Promise<void> {
+  async reply(o: ReplyOptions): Promise<void> {
     const args = [
       "im",
       "+messages-reply",
@@ -45,10 +46,20 @@ export class LarkSender {
     } else if (o.text) {
       args.push("--text", o.text);
     } else {
-      return Promise.reject(new Error("reply requires markdown or text"));
+      throw new Error("reply requires markdown or text");
     }
     if (o.replyInThread) args.push("--reply-in-thread");
-    return this.runVoid(args);
+    try {
+      await this.runVoid(args);
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      if (o.replyInThread && isThreadUnsupportedError(detail)) {
+        log.warn("reply-in-thread unsupported (230071); retrying as plain reply");
+        await this.reply({ ...o, replyInThread: false });
+        return;
+      }
+      throw err;
+    }
   }
 
   send(o: SendOptions): Promise<void> {
@@ -81,14 +92,37 @@ export class LarkSender {
       this.opts.identity,
     ];
     const stdout = await this.run(args);
+    return this.parseMessageId(stdout);
+  }
+
+  /**
+   * Reply with an interactive card under an existing message. Prefer this over
+   * `sendCard` in topic-mode groups so the bot stays in the same topic/thread.
+   */
+  async replyCard(messageId: string, card: unknown, replyInThread = false): Promise<string> {
+    const args = [
+      "im",
+      "+messages-reply",
+      "--message-id",
+      messageId,
+      "--msg-type",
+      "interactive",
+      "--content",
+      JSON.stringify(card),
+      "--as",
+      this.opts.identity,
+    ];
+    if (replyInThread) args.push("--reply-in-thread");
     try {
-      const parsed = JSON.parse(stdout);
-      const messageId: string | undefined =
-        parsed?.data?.message_id ?? parsed?.message_id ?? parsed?.data?.message?.message_id;
-      if (!messageId) throw new Error(`no message_id in lark-cli response: ${stdout.slice(0, 400)}`);
-      return messageId;
+      const stdout = await this.run(args);
+      return this.parseMessageId(stdout);
     } catch (err) {
-      throw new Error(`failed to parse lark-cli response: ${(err as Error).message}`);
+      const detail = err instanceof Error ? err.message : String(err);
+      if (replyInThread && isThreadUnsupportedError(detail)) {
+        log.warn("reply-in-thread unsupported (230071); retrying card as plain reply");
+        return this.replyCard(messageId, card, false);
+      }
+      throw err;
     }
   }
 
@@ -107,6 +141,18 @@ export class LarkSender {
       this.opts.identity,
     ];
     return this.runVoid(args);
+  }
+
+  private parseMessageId(stdout: string): string {
+    try {
+      const parsed = JSON.parse(stdout);
+      const messageId: string | undefined =
+        parsed?.data?.message_id ?? parsed?.message_id ?? parsed?.data?.message?.message_id;
+      if (!messageId) throw new Error(`no message_id in lark-cli response: ${stdout.slice(0, 400)}`);
+      return messageId;
+    } catch (err) {
+      throw new Error(`failed to parse lark-cli response: ${(err as Error).message}`);
+    }
   }
 
   private runVoid(args: string[]): Promise<void> {
