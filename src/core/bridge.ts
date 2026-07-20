@@ -20,6 +20,7 @@ import { LarkSender } from "../lark/sender.js";
 import { LarkChats } from "../lark/chats.js";
 import { LarkAttachmentFetcher, type AttachmentRef } from "../lark/attach.js";
 import { CommentFetcher, type CommentReply, type CommentThread } from "../lark/comments.js";
+import { shouldReplyInThread } from "../lark/thread-reply.js";
 import {
   loadActiveLarkCredentials,
   fetchBotOpenId,
@@ -244,7 +245,7 @@ export class Bridge {
     log.info(
       `inbound msg chat=${evt.chat_id} type=${evt.chat_type} sender=${evt.sender_id} ` +
         `mentions=${evt.mentions.length} spawned=${this.sessions.isSpawned(evt.chat_id)} ` +
-        `reply_to=${evt.reply_to_message_id ?? "-"}`,
+        `reply_to=${evt.reply_to_message_id ?? "-"} thread=${evt.thread_id ?? "-"}`,
     );
 
     // Never process our own outbound messages — the welcome card sent during
@@ -601,7 +602,7 @@ export class Bridge {
     const opts = configFormOptsFromBridge(this.opts.config);
     const card = configFormCard(opts);
     try {
-      await this.sender.sendCard(evt.chat_id, card);
+      await this.sender.replyCard(evt.message_id, card, shouldReplyInThread(evt));
     } catch (err) {
       await this.replyMarkdown(evt, `无法发送配置卡片：${(err as Error).message}`);
     }
@@ -1353,7 +1354,14 @@ export class Bridge {
 
     let messageId: string | null = null;
     try {
-      messageId = await this.sender.sendCard(evt.chat_id, renderCard(state, meta));
+      // Always reply to the triggering message. In topic-mode groups, sendCard
+      // creates a brand-new top-level topic; reply-in-thread keeps the run in
+      // the same topic the user @mentioned from.
+      messageId = await this.sender.replyCard(
+        evt.message_id,
+        renderCard(state, meta),
+        shouldReplyInThread(evt),
+      );
     } catch (err) {
       log.warn(`card send failed, falling back to reply mode: ${(err as Error).message}`);
       await this.runWithReply(evt, sessionId, parts, rt);
@@ -1465,7 +1473,11 @@ export class Bridge {
 
   private async replyMarkdown(evt: LarkMessageEvent, body: string): Promise<void> {
     try {
-      await this.sender.reply({ messageId: evt.message_id, markdown: body });
+      await this.sender.reply({
+        messageId: evt.message_id,
+        markdown: body,
+        replyInThread: shouldReplyInThread(evt),
+      });
     } catch (err) {
       log.error(`reply failed: ${(err as Error).message}`);
     }

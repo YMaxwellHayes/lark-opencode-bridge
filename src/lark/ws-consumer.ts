@@ -194,6 +194,7 @@ function adaptMessage(msg: NormalizedMessage): LarkMessageEvent | null {
     create_time: String(msg.createTime),
     mentions,
     reply_to_message_id: resolveReplyToMessageId(msg),
+    thread_id: resolveThreadId(msg),
   };
 }
 
@@ -202,6 +203,13 @@ function resolveReplyToMessageId(msg: NormalizedMessage): string | undefined {
   const raw = msg.raw as { message?: { parent_id?: string } } | undefined;
   const parent = raw?.message?.parent_id;
   return parent && parent !== "0" ? parent : undefined;
+}
+
+function resolveThreadId(msg: NormalizedMessage): string | undefined {
+  if (msg.threadId) return msg.threadId;
+  const raw = msg.raw as { message?: { thread_id?: string } } | undefined;
+  const threadId = raw?.message?.thread_id;
+  return threadId && threadId !== "0" ? threadId : undefined;
 }
 
 function adaptComment(evt: CommentEvent): LarkCommentEvent | null {

@@ -25,6 +25,8 @@ export interface LarkMessageEvent {
   mentions: MentionInfo[];
   /** When the user replies to or quotes another message, Feishu sets parent_id. */
   reply_to_message_id?: string;
+  /** Topic/thread id when the message already lives inside a topic (topic-mode groups). */
+  thread_id?: string;
 }
 
 export interface LarkCommentEvent {

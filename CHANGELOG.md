@@ -3,6 +3,16 @@
 All notable changes to **lark-opencode-bridge** are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.13] - 2026-07-20
+
+### Fixed
+- **Topic/thread replies** — card mode no longer posts a brand-new top-level
+  message (which becomes a new topic in topic-mode groups like Atlas Agent
+  Desk). Agent cards and markdown replies now use `messages-reply` against the
+  triggering message, with `--reply-in-thread` for group/topic context so
+  `@Tommy` stays in the same thread the user mentioned from. If the chat
+  rejects thread replies (`230071`), the bridge retries as a plain reply.
+
 ## [0.1.12] - 2026-06-01
 
 ### Added
