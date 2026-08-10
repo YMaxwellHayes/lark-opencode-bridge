@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../process/exec.js";
 import { createLogger } from "../log.js";
 import {
   DEFAULT_SUBSCRIBED_CALLBACKS,
@@ -260,6 +260,8 @@ async function updateEventAndCallbackViaSdk(
 function openInBrowser(url: string): void {
   if (process.platform === "darwin") {
     spawnSync("open", [url], { stdio: "ignore" });
+  } else if (process.platform === "win32") {
+    spawnSync("rundll32", ["url.dll,FileProtocolHandler", url], { stdio: "ignore" });
   } else if (process.platform === "linux") {
     spawnSync("xdg-open", [url], { stdio: "ignore" });
   }

@@ -3,6 +3,16 @@
 All notable changes to **lark-opencode-bridge** are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.13] - 2026-08-10
+
+### Fixed
+- **Windows：检测/安装 lark-cli 必失败**（`安装 @larksuite/cli 失败：unknown error`）。所有外部命令（`lark-cli` / `npm` / `opencode`）此前用 `node:child_process` 直接 spawn，而 Windows 上 npm 全局命令是 `.cmd` 垫片——无 shell 的 spawn 直接 `ENOENT`（新版 Node 因 CVE-2024-27980 还会拒绝执行 `.cmd`）。即使 lark-cli 已装好也检测不到，继而 `npm install -g` 兜底同样失败。现统一走 `cross-spawn`（`src/process/exec.ts`），正确解析垫片并转义参数。
+- Windows 上 `resolveOnPath` 优先返回 `.exe`/`.cmd`/`.bat` 匹配（`where` 会把不可执行的无扩展名 sh 垫片排在最前）。
+- `npm install -g @larksuite/cli` 失败时的报错现在带上真实原因（如 spawn `ENOENT`），不再是空的 "unknown error"。
+
+### Added
+- 扫码向导在 **Windows** 也会自动打开授权页 / 开放平台页面（`rundll32 url.dll,FileProtocolHandler`），权限清单支持复制到 Windows 剪贴板（`clip`）；此前这两处仅支持 macOS / Linux。
+
 ## [0.1.12] - 2026-06-01
 
 ### Added

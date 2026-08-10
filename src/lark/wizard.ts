@@ -1,5 +1,5 @@
 import { registerApp } from "@larksuiteoapi/node-sdk";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../process/exec.js";
 import qrcode from "qrcode-terminal";
 import { createLogger } from "../log.js";
 import { guideScopeImport } from "./scopes-setup.js";
@@ -14,12 +14,15 @@ function showQrCode(url: string, expireIn: number): void {
   qrcode.generate(url, { small: true });
   process.stdout.write("\n");
 
-  // macOS: open the auth page in the default browser (shows a scannable QR too).
-  if (process.platform === "darwin") {
-    const opened = spawnSync("open", [url], { stdio: "ignore" });
-    if (opened.status === 0) {
-      process.stdout.write("已在浏览器中打开授权页。\n");
-    }
+  // Open the auth page in the default browser (shows a scannable QR too).
+  const opened =
+    process.platform === "darwin"
+      ? spawnSync("open", [url], { stdio: "ignore" })
+      : process.platform === "win32"
+        ? spawnSync("rundll32", ["url.dll,FileProtocolHandler", url], { stdio: "ignore" })
+        : spawnSync("xdg-open", [url], { stdio: "ignore" });
+  if (opened.status === 0) {
+    process.stdout.write("已在浏览器中打开授权页。\n");
   }
 
   process.stdout.write(`链接（备用）: ${url}\n\n`);

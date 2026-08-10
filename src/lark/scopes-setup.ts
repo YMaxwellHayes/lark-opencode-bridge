@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../process/exec.js";
 import { SCOPES_PATH } from "../paths.js";
 import {
   DEFAULT_SETUP_SCOPES,
@@ -62,6 +62,10 @@ function copyToClipboard(text: string): boolean {
     const r = spawnSync("pbcopy", { input: text, encoding: "utf8" });
     return r.status === 0;
   }
+  if (process.platform === "win32") {
+    const r = spawnSync("clip", { input: text, encoding: "utf8" });
+    return r.status === 0;
+  }
   if (process.platform === "linux") {
     const r = spawnSync("xclip", ["-selection", "clipboard"], { input: text, encoding: "utf8" });
     if (r.status === 0) return true;
@@ -74,6 +78,9 @@ function copyToClipboard(text: string): boolean {
 function openInBrowser(url: string): boolean {
   if (process.platform === "darwin") {
     return spawnSync("open", [url], { stdio: "ignore" }).status === 0;
+  }
+  if (process.platform === "win32") {
+    return spawnSync("rundll32", ["url.dll,FileProtocolHandler", url], { stdio: "ignore" }).status === 0;
   }
   if (process.platform === "linux") {
     return spawnSync("xdg-open", [url], { stdio: "ignore" }).status === 0;

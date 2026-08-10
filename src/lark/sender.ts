@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn } from "../process/exec.js";
 import { createLogger } from "../log.js";
 
 const log = createLogger("lark.send");

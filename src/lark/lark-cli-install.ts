@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { resolveOnPath, spawnSync } from "../process/exec.js";
 import { createLogger } from "../log.js";
 
 const log = createLogger("lark-cli.install");
@@ -38,12 +38,7 @@ function probeLarkCli(bin: string): { ok: boolean; version?: string; output: str
 
 function resolveLarkCliBin(explicit?: string): string {
   if (explicit) return explicit;
-  const which = spawnSync("which", ["lark-cli"], { encoding: "utf8" });
-  if (which.status === 0) {
-    const p = which.stdout.trim();
-    if (p) return p;
-  }
-  return "lark-cli";
+  return resolveOnPath("lark-cli") ?? "lark-cli";
 }
 
 function fetchLatestLarkCliVersion(): string | undefined {
@@ -62,7 +57,8 @@ function installLatestLarkCli(silent: boolean): { ok: boolean; output: string } 
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   });
-  const output = `${res.stdout || ""}${res.stderr || ""}`.trim();
+  const output =
+    `${res.stdout || ""}${res.stderr || ""}`.trim() || res.error?.message || "";
   return { ok: res.status === 0, output };
 }
 

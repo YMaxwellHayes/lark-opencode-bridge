@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import { readdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { resolveOnPath, spawnSync } from "../process/exec.js";
 import { fileURLToPath } from "node:url";
 import { createLogger } from "../log.js";
 import { HOME_DIR, LOG_DIR, ensureHome } from "../paths.js";
@@ -23,16 +23,6 @@ export function resolveServiceBinaries(): ServiceBinaries {
     larkCli: resolveOnPath("lark-cli"),
     opencode: resolveOnPath("opencode"),
   };
-}
-
-function resolveOnPath(name: string): string | undefined {
-  // `which` on POSIX, `where` on Windows. `where` may print several matches,
-  // one per line — take the first.
-  const finder = IS_WIN ? "where" : "which";
-  const res = spawnSync(finder, [name], { encoding: "utf8", env: process.env });
-  if (res.status !== 0) return undefined;
-  const p = res.stdout.split(/\r?\n/)[0]?.trim();
-  return p || undefined;
 }
 
 /**

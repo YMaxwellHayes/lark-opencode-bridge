@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "./process/exec.js";
 import { createLogger } from "./log.js";
 import { hasLarkAppConfigured } from "./lark/credentials.js";
 import { ensureLarkCli } from "./lark/lark-cli-install.js";

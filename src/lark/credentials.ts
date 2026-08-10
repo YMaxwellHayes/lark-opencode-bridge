@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../process/exec.js";
 import { createLogger } from "../log.js";
 import { loadBridgeSecret } from "./bridge-secrets.js";
 

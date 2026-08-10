@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "./process/exec.js";
 import { loadConfig, saveConfig, type BridgeConfig } from "./config.js";
 import { Bridge } from "./core/bridge.js";
 import { createLogger, recentLogEntries } from "./log.js";

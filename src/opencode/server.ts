@@ -1,4 +1,5 @@
-import { spawn, type ChildProcessByStdio } from "node:child_process";
+import { type ChildProcessByStdio } from "node:child_process";
+import { spawn } from "../process/exec.js";
 import type { Readable } from "node:stream";
 import { createLogger } from "../log.js";
 
