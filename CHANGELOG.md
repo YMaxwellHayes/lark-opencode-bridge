@@ -3,6 +3,12 @@
 All notable changes to **lark-opencode-bridge** are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.14] - 2026-08-10
+
+### Fixed
+- `--version` 一直输出硬编码的 `0.1.5`——版本号现在运行时从 `package.json` 读取，随发版自动正确。
+- 新增 `-v` 短选项（`lark-opencode-bridge -v`）；原 commander 默认的 `-V` 由 `-v` 取代。
+
 ## [0.1.13] - 2026-08-10
 
 ### Fixed

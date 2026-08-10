@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import { readFileSync } from "node:fs";
 import { spawnSync } from "./process/exec.js";
 import { loadConfig, saveConfig, type BridgeConfig } from "./config.js";
 import { Bridge } from "./core/bridge.js";
@@ -29,7 +30,7 @@ export async function runCli(argv: string[]): Promise<void> {
   program
     .name("lark-opencode-bridge")
     .description("Bridge Feishu/Lark messenger with the opencode CLI")
-    .version(VERSION);
+    .version(VERSION, "-v, --version");
 
   program
     .command("scopes")
@@ -488,7 +489,16 @@ function printDoctor(r: DoctorReport): void {
   w(`require @ in group: ${r.cfg.requireGroupMention}`);
 }
 
-const VERSION = "0.1.5";
+// Single source of truth is package.json — the release script bumps only that.
+// Works from both src/ (tsx) and dist/ (build): ../package.json is the pkg root.
+const VERSION: string = (() => {
+  try {
+    const raw = readFileSync(new URL("../package.json", import.meta.url), "utf8");
+    return (JSON.parse(raw) as { version?: string }).version ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+})();
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
