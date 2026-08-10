@@ -3,6 +3,12 @@
 All notable changes to **lark-opencode-bridge** are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.15] - 2026-08-10
+
+### Fixed
+- **向导安装 lark-cli 时"假死"**：`npm install -g @larksuite/cli` 原先把输出全部吞掉，慢网络下用户面对黑屏干等；现在交互模式直接透传 npm 自己的下载进度，并加 15 分钟超时兜底（超时报错会提示检查网络/registry）。
+- 刚装完 `@latest` 不再多余地 `npm view` 查一次"是否需要升级"（这一步无超时且无输出，是第二个假死点）；升级检查本身也加了 20 秒超时，查不到就沿用当前版本。
+
 ## [0.1.14] - 2026-08-10
 
 ### Fixed

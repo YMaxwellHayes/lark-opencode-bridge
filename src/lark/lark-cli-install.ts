@@ -42,23 +42,33 @@ function resolveLarkCliBin(explicit?: string): string {
 }
 
 function fetchLatestLarkCliVersion(): string | undefined {
+  // Best-effort upgrade check — a slow/blocked registry must not hang the wizard.
   const res = spawnSync("npm", ["view", "@larksuite/cli", "version"], {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    timeout: 20_000,
   });
   if (res.status !== 0) return undefined;
   return res.stdout.trim() || undefined;
 }
 
 function installLatestLarkCli(silent: boolean): { ok: boolean; output: string } {
-  if (!silent) process.stdout.write("正在安装最新版飞书 CLI（@larksuite/cli）…\n");
+  if (!silent) {
+    process.stdout.write("正在安装最新版飞书 CLI（@larksuite/cli），下载进度如下（取决于网络可能需要几分钟）…\n");
+  }
   log.info("running npm install -g @larksuite/cli@latest");
+  // Interactive runs stream npm's own output so the wizard never looks frozen;
+  // silent (preflight) runs capture it for the error message instead.
   const res = spawnSync("npm", ["install", "-g", "@larksuite/cli@latest"], {
     encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
+    stdio: silent ? ["ignore", "pipe", "pipe"] : ["ignore", "inherit", "inherit"],
+    timeout: 15 * 60_000,
   });
+  const timedOut = res.error && "code" in res.error && (res.error as NodeJS.ErrnoException).code === "ETIMEDOUT";
   const output =
-    `${res.stdout || ""}${res.stderr || ""}`.trim() || res.error?.message || "";
+    `${res.stdout || ""}${res.stderr || ""}`.trim() ||
+    (timedOut ? "npm install 超时（15 分钟）— 请检查网络或 npm registry 配置" : res.error?.message) ||
+    (res.status !== 0 ? `npm 退出码 ${res.status}（详见上方 npm 输出）` : "");
   return { ok: res.status === 0, output };
 }
 
@@ -115,7 +125,8 @@ export async function ensureLarkCli(opts: EnsureLarkCliOptions = {}): Promise<En
     };
   }
 
-  if (opts.upgradeToLatest && probe.version) {
+  // A fresh install IS @latest — don't hit the registry again to "check for upgrades".
+  if (opts.upgradeToLatest && !installed && probe.version) {
     const latest = fetchLatestLarkCliVersion();
     if (latest && versionNeedsUpgrade(probe.version, latest)) {
       if (!silent) {
