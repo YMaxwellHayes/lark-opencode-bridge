@@ -24,8 +24,12 @@ const REPO = "YMaxwellHayes/lark-opencode-bridge";
 const REMOTES = ["origin", "gitlab"]; // pushed to every one that exists
 
 // Feishu announcement (broadcast a release card to the group after publishing).
+// Sent as the opencode-bot itself (TAT): the bot must be a MEMBER of the group.
+// User-token (UAT) sending is not allowed for external/cross-tenant chats, so a
+// bot-in-the-group is the only reliable path for the public 交流群.
 const FEISHU_GROUP = "oc_4b18b1462f152295d66b48a7e190e286"; // lark-opencode-bridge 交流群
-const FEISHU_PROFILE = "feishu_publish"; // lark-cli profile holding the user login
+const FEISHU_PROFILE = "opencode-bot"; // app that owns the group's bot (cli_aa9941...)
+const FEISHU_IDENTITY = "bot"; // bot must be added to the group first
 const KB_URL = "https://liulishuo.feishu.cn/wiki/ZahKwFsJQiGnYVkHw76crxVPnUL";
 
 const args = process.argv.slice(2);
@@ -213,7 +217,7 @@ if (NO_CARD) {
   step(`Feishu card → ${FEISHU_GROUP}`);
   const card = JSON.stringify(buildCard());
   if (DRY) {
-    console.log(`  [dry] lark-cli im +messages-send --chat-id ${FEISHU_GROUP} --msg-type interactive --as user --profile ${FEISHU_PROFILE} --content <card>`);
+    console.log(`  [dry] lark-cli im +messages-send --chat-id ${FEISHU_GROUP} --msg-type interactive --as ${FEISHU_IDENTITY} --profile ${FEISHU_PROFILE} --content <card>`);
     console.log("  [dry] card:\n" + JSON.stringify(buildCard(), null, 2).split("\n").map((l) => "    " + l).join("\n"));
   } else {
     const cardFile = join(ROOT, `.release-card-${next}.json`);
@@ -221,7 +225,7 @@ if (NO_CARD) {
     try {
       run(
         `lark-cli im +messages-send --chat-id ${FEISHU_GROUP} --msg-type interactive ` +
-          `--as user --profile ${FEISHU_PROFILE} --content "$(cat '${cardFile}')"`,
+          `--as ${FEISHU_IDENTITY} --profile ${FEISHU_PROFILE} --content "$(cat '${cardFile}')"`,
       );
     } catch {
       // never fail the release for a broadcast hiccup (e.g. token needs re-login)
