@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { readFileSync } from "node:fs";
-import { spawnSync } from "./process/exec.js";
+import path from "node:path";
+import { resolveLarkCli, spawnSync } from "./process/exec.js";
 import { loadConfig, saveConfig, type BridgeConfig } from "./config.js";
 import { Bridge } from "./core/bridge.js";
 import { createLogger, recentLogEntries } from "./log.js";
@@ -225,9 +226,9 @@ export async function runCli(argv: string[]): Promise<void> {
       await ensureServiceStarted();
       const st = await getServiceStatus();
       process.stdout.write(`后台服务已启动。\n${st.detail}\n`);
-      process.stdout.write(`日志: ${LOG_DIR}/\n`);
-      process.stdout.write(`  - ${LOG_DIR}/service.stderr.log（启动错误）\n`);
-      process.stdout.write(`  - ${LOG_DIR}/${new Date().toISOString().slice(0, 10)}.log（运行日志）\n`);
+      process.stdout.write(`日志: ${LOG_DIR}${path.sep}\n`);
+      process.stdout.write(`  - ${path.join(LOG_DIR, "service.stderr.log")}（启动错误）\n`);
+      process.stdout.write(`  - ${path.join(LOG_DIR, `${new Date().toISOString().slice(0, 10)}.log`)}（运行日志）\n`);
 
       await sleep(2500);
       const procs = await listProcesses();
@@ -236,7 +237,7 @@ export async function runCli(argv: string[]): Promise<void> {
         const tailHint =
           process.platform === "win32"
             ? `  Get-Content -Tail 20 "${LOG_DIR}\\service.stderr.log"`
-            : `  tail -20 ${LOG_DIR}/service.stderr.log`;
+            : `  tail -20 ${path.join(LOG_DIR, "service.stderr.log")}`;
         process.stdout.write(
           `\n⚠ bridge 进程未注册（可能 preflight 失败）。请运行:\n\n  lark-opencode-bridge doctor\n${tailHint}\n\n`,
         );
@@ -368,9 +369,9 @@ export async function runCli(argv: string[]): Promise<void> {
     .action(async (opts) => {
       const cfg = await loadConfig();
       const pf = await runPreflight({ larkCliPath: opts.larkCli, opencodePath: opts.opencode });
-      const lark = checkBinary(opts.larkCli ?? "lark-cli", ["--version"]);
+      const lark = checkBinary(opts.larkCli ?? resolveLarkCli(), ["--version"]);
       const opencode = checkBinary(opts.opencode ?? "opencode", ["--version"]);
-      const authed = checkBinary(opts.larkCli ?? "lark-cli", ["auth", "list"]);
+      const authed = checkBinary(opts.larkCli ?? resolveLarkCli(), ["auth", "list"]);
       printDoctor({
         homeDir: HOME_DIR,
         configPath: CONFIG_PATH,
@@ -445,7 +446,7 @@ function checkBinary(bin: string, args: string[]): BinaryCheck {
       return { bin, ok: false, output: res.error.message };
     }
     const ok = res.status === 0;
-    const output = (res.stdout || res.stderr || "").trim().split("\n")[0] ?? "";
+    const output = (res.stdout || res.stderr || "").trim().split(/\r?\n/)[0] ?? "";
     return { bin, ok, output };
   } catch (err) {
     return { bin, ok: false, output: (err as Error).message };

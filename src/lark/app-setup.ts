@@ -1,4 +1,4 @@
-import { spawnSync } from "../process/exec.js";
+import { resolveLarkCli, spawnSync } from "../process/exec.js";
 import { createLogger } from "../log.js";
 import {
   DEFAULT_SUBSCRIBED_CALLBACKS,
@@ -68,7 +68,7 @@ export async function configureBridgeApp(opts: AppSetupOptions): Promise<AppSetu
       errors,
     ));
   } else if (opts.larkCliProfile) {
-    const bin = opts.larkCliPath ?? "lark-cli";
+    const bin = opts.larkCliPath ?? resolveLarkCli();
     nameUpdated = patchViaLarkCli(
       bin,
       opts.larkCliProfile,

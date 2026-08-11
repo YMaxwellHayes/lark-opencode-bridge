@@ -1,6 +1,7 @@
-import { spawn } from "../process/exec.js";
+import { resolveLarkCli, spawn } from "../process/exec.js";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { createLogger } from "../log.js";
 import { MEDIA_DIR } from "../paths.js";
 
@@ -86,7 +87,7 @@ export class LarkAttachmentFetcher {
       "--as",
       this.opts.identity,
     ];
-    const out = await run(this.opts.larkCliPath ?? "lark-cli", args);
+    const out = await run(this.opts.larkCliPath ?? resolveLarkCli(), args);
     const json = safeJson(out);
     const msg = extractMessage(json);
     if (!msg) {
@@ -123,13 +124,13 @@ export class LarkAttachmentFetcher {
       "--as",
       this.opts.identity,
     ];
-    await run(this.opts.larkCliPath ?? "lark-cli", args, cwd);
+    await run(this.opts.larkCliPath ?? resolveLarkCli(), args, cwd);
 
     const absPath = path.join(outDir, safeName);
     const stat = await fs.stat(absPath).catch(() => null);
     return {
       filePath: absPath,
-      url: `file://${absPath}`,
+      url: pathToFileURL(absPath).href,
       filename: safeName,
       mime: inferMime(safeName, ref.type),
       size: stat?.size,
@@ -308,7 +309,10 @@ function safeJson(raw: string): unknown {
 }
 
 function sanitiseName(name: string): string {
-  return name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
+  const safe = name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
+  // Windows reserves device names (CON, NUL, PRN, AUX, COM1-9, LPT1-9) even
+  // with an extension — writes silently go to the device instead of a file.
+  return /^(con|nul|prn|aux|com[1-9]|lpt[1-9])(\.|$)/i.test(safe) ? `_${safe}` : safe;
 }
 
 function inferMime(name: string, type: ResourceType): string {

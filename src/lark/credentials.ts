@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "../process/exec.js";
+import { resolveLarkCli, spawnSync } from "../process/exec.js";
 import { createLogger } from "../log.js";
 import { loadBridgeSecret } from "./bridge-secrets.js";
 
@@ -191,7 +191,7 @@ function readKeychainLegacy(service: string | undefined): string | null {
  * Used to recognise @mentions targeting us.
  */
 export function fetchBotOpenId(opts: { larkCliPath?: string; profile?: string }): string | null {
-  const bin = opts.larkCliPath ?? "lark-cli";
+  const bin = opts.larkCliPath ?? resolveLarkCli();
   const args = ["api", "GET", "/open-apis/bot/v3/info", "--as", "bot"];
   if (opts.profile) args.unshift("--profile", opts.profile);
   const res = spawnSync(bin, args, { encoding: "utf8" });

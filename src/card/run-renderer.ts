@@ -3,6 +3,11 @@ import { toolBodyMd, toolHeaderText } from "./tool-render.js";
 
 const REASONING_MAX = 1000;
 const COLLAPSE_TOOL_THRESHOLD = 3;
+// Feishu rejects cards around 30KB, and the lark-cli fallback path carries the
+// card JSON on a single command line (Windows CreateProcess caps it at 32767
+// chars) — cap each answer block well below both limits so a long run degrades
+// to a truncated card instead of every patch failing.
+const TEXT_BLOCK_MAX = 8000;
 
 export interface CardMeta {
   /** Included in the stop button value so the bridge knows which chat to abort. */
@@ -20,7 +25,7 @@ export function renderCard(state: RunState, meta: CardMeta): object {
 
   for (const group of groupBlocks(state.blocks)) {
     if (group.kind === "text") {
-      if (group.content.trim()) elements.push(mdEl(group.content));
+      if (group.content.trim()) elements.push(mdEl(truncate(group.content, TEXT_BLOCK_MAX)));
     } else {
       elements.push(...renderToolGroup(group.tools, state.terminal !== "running"));
     }

@@ -1,4 +1,4 @@
-import { resolveOnPath, spawnSync } from "../process/exec.js";
+import { resolveLarkCli, spawnSync } from "../process/exec.js";
 import { createLogger } from "../log.js";
 
 const log = createLogger("lark-cli.install");
@@ -33,12 +33,12 @@ function probeLarkCli(bin: string): { ok: boolean; version?: string; output: str
   const output = `${res.stdout || ""}${res.stderr || ""}`.trim();
   if (res.error) return { ok: false, output: res.error.message };
   if (res.status !== 0) return { ok: false, output: output || `exit ${res.status}` };
-  return { ok: true, version: parseLarkCliVersion(output), output: output.split("\n")[0] ?? output };
+  return { ok: true, version: parseLarkCliVersion(output), output: output.split(/\r?\n/)[0] ?? output };
 }
 
 function resolveLarkCliBin(explicit?: string): string {
-  if (explicit) return explicit;
-  return resolveOnPath("lark-cli") ?? "lark-cli";
+  // refresh: this runs right after a possible fresh npm install of lark-cli.
+  return resolveLarkCli(explicit, { refresh: true });
 }
 
 function fetchLatestLarkCliVersion(): string | undefined {

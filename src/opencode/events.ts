@@ -203,7 +203,10 @@ function normalize(env: RawOpencodeEvent): NormalizedEvent | null {
     const partID = typeof part.id === "string" ? part.id : undefined;
     const partType = typeof part.type === "string" ? part.type : undefined;
     if (!sessionID || !messageID || !partID || !partType) return null;
-    const toolInput = part.input ?? part.args ?? part.params;
+    // opencode puts tool call arguments at part.state.input.
+    const state =
+      part.state && typeof part.state === "object" ? (part.state as Record<string, unknown>) : undefined;
+    const toolInput = state?.input ?? part.input ?? part.args ?? part.params;
     return {
       kind: "part",
       sessionID,

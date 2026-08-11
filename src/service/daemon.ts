@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import { readdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveOnPath, spawnSync } from "../process/exec.js";
+import { resolveLarkCli, resolveOnPath, spawnSync } from "../process/exec.js";
 import { fileURLToPath } from "node:url";
 import { createLogger } from "../log.js";
 import { HOME_DIR, LOG_DIR, ensureHome } from "../paths.js";
@@ -20,7 +20,7 @@ export interface ServiceBinaries {
 /** Resolve absolute paths while installing the daemon (launchd has a minimal PATH). */
 export function resolveServiceBinaries(): ServiceBinaries {
   return {
-    larkCli: resolveOnPath("lark-cli"),
+    larkCli: resolveLarkCli(),
     opencode: resolveOnPath("opencode"),
   };
 }
@@ -321,11 +321,32 @@ export async function installService(): Promise<void> {
   throw new Error(`service install not supported on ${process.platform}`);
 }
 
+/** Task existence via exit code — locale-independent. */
+function winTaskExists(): boolean {
+  return spawnSync("schtasks", ["/Query", "/TN", LABEL], { stdio: "ignore" }).status === 0;
+}
+
+/** Task state ("Ready" | "Running" | …) via PowerShell — English on every locale. */
+function winTaskState(): string | undefined {
+  const res = spawnSync(
+    "powershell",
+    ["-NoProfile", "-NonInteractive", "-Command", `(Get-ScheduledTask -TaskName '${LABEL}').State`],
+    { encoding: "utf8", timeout: 15_000 },
+  );
+  if (res.status !== 0) return undefined;
+  return res.stdout?.trim() || undefined;
+}
+
 export async function uninstallService(): Promise<void> {
   assertServicePlatform();
   if (IS_WIN) {
-    // Tolerate "task does not exist" so uninstall is idempotent.
-    runTolerant("schtasks", ["/Delete", "/TN", LABEL, "/F"], /cannot find|does not exist|ERROR:.*specified/i);
+    // Existence via exit code, not output text — schtasks messages are
+    // localized (e.g. zh-CN) and printed in the OEM codepage.
+    if (!winTaskExists()) {
+      log.info("scheduled task not installed — nothing to uninstall");
+      return;
+    }
+    run("schtasks", ["/Delete", "/TN", LABEL, "/F"]);
     log.info("uninstalled scheduled task");
     return;
   }
@@ -378,7 +399,13 @@ export async function stopService(): Promise<void> {
   if (IS_WIN) {
     // /End terminates the running instance but keeps the task definition.
     // The logon trigger won't refire until next logon; `start` re-runs it now.
-    runTolerant("schtasks", ["/End", "/TN", LABEL], /cannot find|does not exist|not running|ERROR:.*specified/i);
+    if (!winTaskExists()) return;
+    const res = spawnSync("schtasks", ["/End", "/TN", LABEL], { encoding: "utf8" });
+    if (res.status !== 0 && winTaskState() === "Running") {
+      // Output text is localized/OEM-encoded, so only the still-Running state
+      // (queried locale-independently) marks a genuine failure.
+      throw new Error(`schtasks /End failed: ${(res.stderr || res.stdout || "").trim()}`);
+    }
     return;
   }
   if (process.platform === "darwin") {
@@ -405,13 +432,11 @@ export async function stopService(): Promise<void> {
 export async function getServiceStatus(): Promise<ServiceStatus> {
   const platform = process.platform;
   if (IS_WIN) {
-    const res = spawnSync("schtasks", ["/Query", "/TN", LABEL, "/FO", "LIST"], {
-      encoding: "utf8",
-    });
-    const installed = res.status === 0;
-    // schtasks prints a localized "Status:" line; "Running" is stable across
-    // locales for the running state, otherwise it reads "Ready".
-    const running = installed && /\bRunning\b/i.test(res.stdout || "");
+    const installed = winTaskExists();
+    // PowerShell's State is a .NET enum rendered in English on every locale;
+    // schtasks output is localized + OEM-encoded and can't be matched reliably.
+    const state = installed ? winTaskState() : undefined;
+    const running = state === "Running";
     return {
       installed,
       running,

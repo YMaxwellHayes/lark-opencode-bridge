@@ -1,5 +1,5 @@
 import { type ChildProcessByStdio } from "node:child_process";
-import { spawn } from "../process/exec.js";
+import { spawn, spawnSync } from "../process/exec.js";
 import type { Readable } from "node:stream";
 import { createLogger } from "../log.js";
 
@@ -66,7 +66,14 @@ export class OpencodeServer {
     this.stopped = true;
     if (this.reused) return;
     if (this.proc && !this.proc.killed) {
-      this.proc.kill("SIGTERM");
+      if (process.platform === "win32" && this.proc.pid) {
+        // The spawned process may be a cmd wrapper around a .cmd shim; kill
+        // the whole tree so `opencode serve` doesn't survive as an orphan
+        // holding the port.
+        spawnSync("taskkill", ["/pid", String(this.proc.pid), "/t", "/f"], { stdio: "ignore" });
+      } else {
+        this.proc.kill("SIGTERM");
+      }
     }
     this.proc = null;
   }

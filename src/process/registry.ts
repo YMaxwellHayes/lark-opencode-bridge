@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { spawnSync } from "./exec.js";
 import { PROCESSES_PATH, ensureHome } from "../paths.js";
 import { createLogger } from "../log.js";
 
@@ -72,13 +73,24 @@ export function isAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
-  } catch {
-    return false;
+  } catch (err) {
+    // EPERM = the process exists but we lack permission to signal it —
+    // treating it as dead would let a second instance start alongside it.
+    return (err as NodeJS.ErrnoException).code === "EPERM";
   }
 }
 
 export async function killProcess(pid: number, signal: NodeJS.Signals = "SIGTERM"): Promise<boolean> {
   if (!isAlive(pid)) return false;
+  // Windows has no signals or process groups: process.kill is an immediate
+  // TerminateProcess on the one pid, leaving children (e.g. an opencode serve
+  // spawned via a cmd wrapper) orphaned. taskkill /T kills the whole tree.
+  if (process.platform === "win32") {
+    const res = spawnSync("taskkill", ["/pid", String(pid), "/t", "/f"], { encoding: "utf8" });
+    if (res.status === 0) return true;
+    log.warn(`taskkill ${pid} failed: ${(res.stderr || res.stdout || "").trim()}`);
+    return false;
+  }
   try {
     process.kill(pid, signal);
     return true;

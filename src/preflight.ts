@@ -51,7 +51,7 @@ function checkBinary(bin: string, args: string[]): { ok: boolean; output: string
   try {
     const res = spawnSync(bin, args, { encoding: "utf8" });
     if (res.error) return { ok: false, output: res.error.message };
-    const output = (res.stdout || res.stderr || "").trim().split("\n")[0] ?? "";
+    const output = (res.stdout || res.stderr || "").trim().split(/\r?\n/)[0] ?? "";
     return { ok: res.status === 0, output };
   } catch (err) {
     return { ok: false, output: (err as Error).message };

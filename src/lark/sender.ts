@@ -1,4 +1,4 @@
-import { spawn } from "../process/exec.js";
+import { resolveLarkCli, spawn } from "../process/exec.js";
 import { createLogger } from "../log.js";
 
 const log = createLogger("lark.send");
@@ -114,7 +114,7 @@ export class LarkSender {
   }
 
   private run(args: string[]): Promise<string> {
-    const bin = this.opts.larkCliPath ?? "lark-cli";
+    const bin = this.opts.larkCliPath ?? resolveLarkCli();
     return new Promise((resolve, reject) => {
       const proc = spawn(bin, args, { stdio: ["ignore", "pipe", "pipe"] });
       const stdout: Buffer[] = [];

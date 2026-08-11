@@ -84,6 +84,16 @@ export async function runSetupWizard(opts: SetupOptions = {}): Promise<SetupResu
   const rawBrand = result.user_info?.tenant_brand;
   const brand: "feishu" | "lark" =
     rawBrand === "lark" || rawBrand === "feishu" ? rawBrand : domain;
+  // Persist the credentials FIRST — the app is already created on the Feishu
+  // side, so a profile-add hiccup must not lose the secret (re-running the
+  // wizard would create a duplicate app).
+  await saveBridgeSecret({
+    appId,
+    appSecret,
+    brand: brand === "lark" ? "lark" : "feishu",
+    profile: profileName,
+  });
+
   const add = spawnSync(
     larkCli,
     [
@@ -100,9 +110,23 @@ export async function runSetupWizard(opts: SetupOptions = {}): Promise<SetupResu
     { input: appSecret, encoding: "utf8" },
   );
   if (add.status !== 0) {
+    const detail = [
+      `exit=${add.status ?? "spawn-error"}`,
+      add.error ? `error=${add.error.message}` : "",
+      (add.stderr || "").trim() && `stderr=${add.stderr.trim()}`,
+      (add.stdout || "").trim() && `stdout=${add.stdout.trim()}`,
+    ]
+      .filter(Boolean)
+      .join(" | ");
+    const manualCmd =
+      process.platform === "win32"
+        ? `echo <secret>| lark-cli profile add --name ${profileName} --app-id ${appId} --brand ${brand} --app-secret-stdin --use\n（cmd 下 <secret> 不要加引号，| 前不要有空格；PowerShell 用 '<secret>' | lark-cli …）`
+        : `echo '<secret>' | lark-cli profile add --name ${profileName} --app-id ${appId} --brand ${brand} --app-secret-stdin --use`;
     throw new Error(
-      `lark-cli profile add failed: ${(add.stderr || add.stdout || "").trim()}\n` +
-        `You can manually run: echo '<secret>' | lark-cli profile add --name ${profileName} --app-id ${appId} --app-secret-stdin`,
+      `lark-cli profile add failed (${detail || "no output"})\n` +
+        `凭证已保存（appId=${appId}），无需重跑向导、不要重新扫码（会重复建应用）。\n` +
+        `手动补一条 profile 即可（<secret> 见 ~/.lark-opencode-bridge/secrets.json）：\n` +
+        `  ${manualCmd}`,
     );
   }
 
@@ -112,12 +136,6 @@ export async function runSetupWizard(opts: SetupOptions = {}): Promise<SetupResu
   }
 
   process.stdout.write(`\n绑定成功！appId=${appId} profile=${profileName}\n`);
-  await saveBridgeSecret({
-    appId,
-    appSecret,
-    brand: brand === "lark" ? "lark" : "feishu",
-    profile: profileName,
-  });
   await guideScopeImport(appId, brand === "lark" ? "lark" : "feishu");
   await configureBridgeApp({
     appId,

@@ -1,3 +1,4 @@
+import path from "node:path";
 import { createLogger, pruneOldLogs, recentLogEntries } from "../log.js";
 import type { BridgeConfig } from "../config.js";
 import { saveConfig } from "../config.js";
@@ -481,7 +482,7 @@ export class Bridge {
           await this.replyMarkdown(evt, "Usage: `/cd <absolute-path>`");
           return;
         }
-        if (!target.startsWith("/")) {
+        if (!path.isAbsolute(target)) {
           await this.replyMarkdown(
             evt,
             `\`${target}\` 不是绝对路径。Usage: \`/cd <absolute-path>\``,
@@ -1209,7 +1210,7 @@ export class Bridge {
    */
   private chatCwd(chatId: string): string | undefined {
     const stored = this.sessions.getCwd(chatId);
-    if (stored && stored.startsWith("/")) return stored;
+    if (stored && path.isAbsolute(stored)) return stored;
     return this.opts.config.defaultCwd;
   }
 
