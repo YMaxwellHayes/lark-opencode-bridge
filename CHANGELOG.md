@@ -3,6 +3,11 @@
 All notable changes to **lark-opencode-bridge** are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.17] - 2026-08-11
+
+### Fixed
+- **重跑向导必然卡在 `lark-cli profile add`**（Windows 真机复现定位）：向导每次都会新建应用，但 profile 名固定为 `lark-opencode-bridge`——上次运行留下的同名 profile 使 add 报 `profile already exists`（exit 2）。现在检测到撞名会自动移除旧 profile 并重试一次（该名字为桥接器专属）。在 Windows 10 19043（中文系统 + Node 22 + lark-cli 1.0.86）端到端验证：resolveLarkCli 直连原生 exe、stdin 加 profile、撞名自动替换全部通过。
+
 ## [0.1.16] - 2026-08-11
 
 ### Fixed

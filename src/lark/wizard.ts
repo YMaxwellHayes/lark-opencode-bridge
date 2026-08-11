@@ -94,21 +94,36 @@ export async function runSetupWizard(opts: SetupOptions = {}): Promise<SetupResu
     profile: profileName,
   });
 
-  const add = spawnSync(
-    larkCli,
-    [
-      "profile",
-      "add",
-      "--name",
-      profileName,
-      "--app-id",
-      appId,
-      "--brand",
-      brand,
-      "--app-secret-stdin",
-    ],
-    { input: appSecret, encoding: "utf8" },
-  );
+  const runProfileAdd = () =>
+    spawnSync(
+      larkCli,
+      [
+        "profile",
+        "add",
+        "--name",
+        profileName,
+        "--app-id",
+        appId,
+        "--brand",
+        brand,
+        "--app-secret-stdin",
+      ],
+      { input: appSecret, encoding: "utf8" },
+    );
+
+  let add = runProfileAdd();
+  // Re-running the wizard creates a NEW app but reuses the same profile name,
+  // so a leftover profile from a previous (possibly failed) run makes
+  // profile add fail with "already exists" / "already used by profile".
+  // The name is bridge-owned — replace the stale entry and retry once.
+  if (add.status !== 0 && /already (exists|used)/i.test(`${add.stdout || ""}${add.stderr || ""}`)) {
+    process.stdout.write(`检测到旧的 profile "${profileName}"（上次向导残留），正在替换…\n`);
+    const rm = spawnSync(larkCli, ["profile", "remove", profileName], { encoding: "utf8" });
+    if (rm.status !== 0) {
+      log.warn(`profile remove ${profileName} failed: ${(rm.stderr || rm.stdout || "").trim()}`);
+    }
+    add = runProfileAdd();
+  }
   if (add.status !== 0) {
     const detail = [
       `exit=${add.status ?? "spawn-error"}`,
