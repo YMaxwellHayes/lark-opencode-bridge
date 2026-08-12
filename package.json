@@ -1,6 +1,6 @@
 {
   "name": "lark-opencode-bridge",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Feishu/Lark bot for local opencode — QR setup, streaming cards, /spawn groups, doc comments & attachments",
   "type": "module",
   "repository": {
