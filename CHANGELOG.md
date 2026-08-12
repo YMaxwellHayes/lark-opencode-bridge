@@ -3,6 +3,11 @@
 All notable changes to **lark-opencode-bridge** are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.18] - 2026-08-12
+
+### Changed
+- **`opencode serve` 意外退出不再直接带死整个 bridge**：改为带退避的自动重启（2s/5s/15s），5 分钟内崩 3 次才放弃退出，并在日志里说明常见诱因。背景：Windows 上有用户遇到 opencode 的 Bun 运行时被第三方终端安全/审计软件注入 DLL（MozartBreath* 家族）导致段错误（Bun 上游 oven-sh/bun#20014 判定为外部注入问题不予修复）——这类环境问题桥接器无法根治，但一次崩溃不应终结整个会话。若持续崩溃，请先单独运行 `opencode serve` 排查本机环境（终端管控软件加白名单/排除 bun 进程）。
+
 ## [0.1.17] - 2026-08-11
 
 ### Fixed
